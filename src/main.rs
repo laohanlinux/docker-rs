@@ -3,7 +3,7 @@ use tokio::net::TcpListener;
 use tokio::codec::{Decoder, LinesCodec};
 
 fn main() {
-    let addr = "127.0.0.1:3000".parse().expect("couldn't parse address");
+    let addr = "0.0.0.0:3000".parse().expect("couldn't parse address");
     let listener = TcpListener::bind(&addr).expect("couldn't bind address");
     let future = listener
         .incoming()

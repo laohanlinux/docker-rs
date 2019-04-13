@@ -18,6 +18,6 @@ RUN apt-get update && apt-get -y install ca-certificates libssl-dev && rm -rf /v
 
 COPY --from=build /build-out/ /app/
 
-EXPOSE 3000/tcp 3000/tcp
+EXPOSE 3000 3000
 
 CMD /app/release/docker-rs
