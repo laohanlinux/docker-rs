@@ -1,10 +1,11 @@
-FROM rust:1.31
+FROM rust:1.31 as build
 
-COPY ./ ./ 
+ENV RUSTUP_DIST_SERVER http://mirrors.ustc.edu.cn/rust-static
+ENV RUSTUP_UPDATE_ROOT http://mirrors.ustc.edu.cn/rust-static/rustup
 
-COPY cargo_config /root/.cargo/config
+COPY ./ ./
 
-RUN cargo build --release 
+RUN cargo build --release
 
 RUN mkdir -p /build-out
 
@@ -17,4 +18,6 @@ RUN apt-get update && apt-get -y install ca-certificates libssl-dev && rm -rf /v
 
 COPY --from=build /build-out/ /app/
 
-CMD /app
+EXPOSE 3000/tcp 3000/tcp
+
+CMD /app/release/docker-rs
