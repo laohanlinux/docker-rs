@@ -1,23 +1,33 @@
-FROM rust:1.31 as build
+FROM rust:latest as build
 
-ENV RUSTUP_DIST_SERVER http://mirrors.ustc.edu.cn/rust-static
-ENV RUSTUP_UPDATE_ROOT http://mirrors.ustc.edu.cn/rust-static/rustup
+RUN apt-get update
 
-COPY ./ ./
+RUN apt-get install musl-tools -y
 
-RUN cargo build --release
+RUN rustup target add x86_64-unknown-linux-musl
+
+WORKDIR /root/source
+
+RUN rm -f target/x86_64-unknown-linux-musl/release/deps/docker-rs*
+
+COPY ./ /root/source
+
+RUN RUSTFLAGS=-Clinker=musl-gcc cargo build --release --target=x86_64-unknown-linux-musl
 
 RUN mkdir -p /build-out
 
-RUN cp -r target/release /build-out/
 
-FROM ubuntu@sha256:5f4bdc3467537cbbe563e80db2c3ec95d548a9145d64453b06939c4592d67b6d
+RUN cp -r target/x86_64-unknown-linux-musl/release /build-out/
 
-ENV DEBIAN_FRONTEND=noninteractive
-RUN apt-get update && apt-get -y install ca-certificates libssl-dev && rm -rf /var/lib/apt/lists/*
+FROM alpine:latest
 
-COPY --from=build /build-out/ /app/
+RUN addgroup -g 1000 myapp
+RUN adduser -D -s /bin/sh -u 1000 -G myapp myapp
+
+COPY --from=build /build-out/release/docker-rs /app/
+
+WORKDIR /app/
 
 EXPOSE 3000 3000
 
-CMD /app/release/docker-rs
+CMD ["./docker-rs"]
