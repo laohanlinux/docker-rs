@@ -3,7 +3,7 @@ use std::net;
 use std::io::{self, BufWriter, BufReader, BufRead, Write};
 
 fn main() {
-    let addr: net::SocketAddr = "127.0.0.1:3000".parse().unwrap();
+    let addr: net::SocketAddr = "0.0.0.0:3000".parse().unwrap();
     let lis = net::TcpListener::bind(addr).expect("can't bind the address");
     lis.incoming().for_each(move |socket| {
         match socket {
